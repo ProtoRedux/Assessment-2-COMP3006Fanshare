@@ -3,17 +3,17 @@ var express = require("express");
 var bodyParser = require ("body-parser");
 var mongoose = require ("mongoose");
 var app = express();
-const mongoAtlasUri = "mongodb+srv://Chaz:oueNekPAQDvGjIew@cluster0.aide3vs.mongodb.net/?retryWrites=true&w=majority";
+const mongoAtlasUri = "mongodb+srv://Chaz:oueNekPAQDvGjIew@cluster0.aide3vs.mongodb.net/COMP3006_FanShare?retryWrites=true&w=majority";
 mongoose.set('strictQuery', false);
 
 //connecting to MongoDB via mongoose
-//let url = "mongodb://localhost:27017/fanshare";
-mongoose.connect(mongoAtlasUri, {useUnifiedTopology: true, useNewUrlParser: true});
+mongoose.connect(mongoAtlasUri, {useUnifiedTopology: true, useNewUrlParser: true},()=> console.log("Mongoose connection success"));
 var db = mongoose.connection;
 
 // mongo error
 db.on('error', console.error.bind(console, 'connection error:'));
 var db = mongoose.connection;
+
 
 //mongodb error handler for connections
 
