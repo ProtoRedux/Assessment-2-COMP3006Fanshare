@@ -4,16 +4,10 @@ var bodyParser = require ("body-parser");
 var mongoose = require ("mongoose");
 var app = express();
 var session = require ("express-session");
-const mongoAtlasUri = "mongodb+srv://Chaz:oueNekPAQDvGjIew@cluster0.aide3vs.mongodb.net/COMP3006_FanShare?retryWrites=true&w=majority";
+var MongoStore = require("connect-mongo");
+var mongoAtlasUri = "mongodb+srv://Chaz:oueNekPAQDvGjIew@cluster0.aide3vs.mongodb.net/COMP3006_FanShare?retryWrites=true&w=majority";
 
 mongoose.set('strictQuery', false);
-
-//using ressions to track logged in users
-app.use(session({
-  secret: "listening with fanshare",
-  resave: true,
-  saveUninitialized:false
-}));
 
 //connecting to MongoDB via mongoose
 mongoose.connect(mongoAtlasUri, {useUnifiedTopology: true, useNewUrlParser: true},()=> console.log("Mongoose connection success, Application running"));
@@ -21,12 +15,31 @@ var db = mongoose.connection;
 
 // mongo error
 db.on('error', console.error.bind(console, 'connection error:'));
-var db = mongoose.connection;
 
 
 //mongodb error handler for connections
 
 db.on("error",console.error.bind(console,"connection error: "));
+
+//using ressions to track logged in users
+app.use(session({
+  secret: "listening with fanshare",
+  resave: true,
+  saveUninitialized:false,
+  store: MongoStore.create
+  ({
+    mongoUrl: "mongodb+srv://Chaz:oueNekPAQDvGjIew@cluster0.aide3vs.mongodb.net/COMP3006_FanShare?retryWrites=true&w=majority"
+  })
+}));
+
+//makes user ID available in templates
+app.use(function(req,res,next)
+{
+  res.locals.currentUser = req.session.userId;
+  next();
+});
+
+
 
 // parse incoming requests
 app.use(bodyParser.json());

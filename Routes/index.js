@@ -1,6 +1,7 @@
 var express = require("express");
 var router = express.Router();
 var User = require("../Models/user")
+var mid = require("../middleware");
 
 //GET/home page
 router.get("/",function(req,res,next) {
@@ -19,12 +20,13 @@ router.get ("/contact", function (req,res,next)
 })
 
 //Get /login
-router.get("/login", function(req,res,next){
+router.get("/login", function(req,res,next)
+{
     return res.render("login",{title: "login"})
 });
 
 //POST login
-router.post("/login", function(req,res,next){
+router.post("/login", mid.loggedOut, function(req,res,next){
     if (req.body.username && req.body.password)
     {
         User.authenticate(req.body.username, req.body.password, function (error,user)
@@ -50,13 +52,32 @@ router.post("/login", function(req,res,next){
     }
 });
 
+//GET /logout
+router.get("/logout", function(req,res,next)
+    {
+    if (req.session)
+        {
+            req.session.destroy(function(err)
+            {
+                if(err)
+                {
+                return next(err);
+                }   
+            else
+                {
+                return res.redirect("/");
+                }   
+            });
+        }
+    });
+    
 //GET /register
 router.get("/register", function(req,res,next){
     return res.render("register", {title: "Sign Up"})
 });
 
 //POST /register
-router.post("/register", function(req,res,next){
+router.post("/register", mid.loggedOut, function(req,res,next){
     if (req.body.email &&
         req.body.name &&
         req.body.username &&
@@ -97,14 +118,8 @@ router.post("/register", function(req,res,next){
 })
 
 //GET /profile
-router.get("/profile", function(req,res,next)
+router.get("/profile",mid.requiresLogin, function(req,res,next)
     {
-        if(! req.session.userId)
-        {
-            var err = new Error("Sorry! but your not allowed to view this page");
-            err.status = 403;
-            return next(err);
-        }
         User.findById(req.session.userId)
             .exec(function(error,user)
             {
