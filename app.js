@@ -3,11 +3,20 @@ var express = require("express");
 var bodyParser = require ("body-parser");
 var mongoose = require ("mongoose");
 var app = express();
+var session = require ("express-session");
 const mongoAtlasUri = "mongodb+srv://Chaz:oueNekPAQDvGjIew@cluster0.aide3vs.mongodb.net/COMP3006_FanShare?retryWrites=true&w=majority";
+
 mongoose.set('strictQuery', false);
 
+//using ressions to track logged in users
+app.use(session({
+  secret: "listening with fanshare",
+  resave: true,
+  saveUninitialized:false
+}));
+
 //connecting to MongoDB via mongoose
-mongoose.connect(mongoAtlasUri, {useUnifiedTopology: true, useNewUrlParser: true},()=> console.log("Mongoose connection success"));
+mongoose.connect(mongoAtlasUri, {useUnifiedTopology: true, useNewUrlParser: true},()=> console.log("Mongoose connection success, Application running"));
 var db = mongoose.connection;
 
 // mongo error
